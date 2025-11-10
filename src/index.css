@@ -1,0 +1,11 @@
+/* These are the 3 main Tailwind directives, using the new v4 import syntax */
+@import "tailwindcss";
+
+/* This applies the font and smoothing site-wide,
+   matching the style of our original HTML demo.
+*/
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
