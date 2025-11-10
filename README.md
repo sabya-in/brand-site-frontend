@@ -1,3 +1,6 @@
+# Brandsite application for agile marketing
+Creating a very lightweight simple site with most essential features to launch a product buy it and analyse user data and then improve produc
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
