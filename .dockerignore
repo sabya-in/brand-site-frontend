@@ -1,0 +1,24 @@
+# Ignore the node_modules directory, it will be installed in the container
+node_modules
+
+# Ignore local .env files (environment variables)
+.env
+.env.local
+
+# Ignore build output (it will be created inside the container)
+dist
+build
+
+# Ignore Docker files themselves
+Dockerfile
+.dockerignore
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore Vite-specific cache
+.vite
+
+# Ignore npm debug logs
+npm-debug.log*

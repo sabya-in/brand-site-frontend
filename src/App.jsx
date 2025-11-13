@@ -1,42 +1,37 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react'; // <-- FIX: Added 'useEffect'
+import { useAuth } from './AuthContext.jsx'; // <-- Import our auth hook
+import { LoginModal } from './LoginModal.jsx'; // <-- Import our new modals
+import { ProfileModal } from './ProfileModal.jsx';
 
-// --- SVG Icons (as components) ---
-// Using inline SVGs is best practice in React as it avoids extra network requests.
-
+// --- (All your SVG Icons) ---
 const CartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.263-12a1.125 1.125 0 011.119-1.007h10.519a1.125 1.125 0 011.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
   </svg>
 );
-
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
-
 const FeatureIcon1 = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-6.364-.386l1.591-1.591M3 12h2.25m.386-6.364l1.591 1.591M12 6.75a4.5 4.5 0 110 9 4.5 4.5 0 010-9z" />
   </svg>
 );
-
 const FeatureIcon2 = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5h10.5M15 18.75a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
   </svg>
 );
-
 const FeatureIcon3 = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
   </svg>
 );
 
-// --- Static Data ---
-// In a real app, this array would come from your backend API.
-// We'd use `useState` and `useEffect` to fetch it.
-const products = [
+// --- (All your Static Data) ---
+const initialProducts = [
   {
     id: 1,
     name: "EON Buds",
@@ -60,33 +55,48 @@ const products = [
   }
 ];
 
-// --- Reusable Components ---
-// Breaking the UI into components makes it manageable and reusable.
+// --- (All your Reusable Components: ProductCard, Features, Footer, etc.) ---
 
-const Header = ({ onOpenCart, cartCount }) => (
-  <header className="sticky top-0 bg-white/90 backdrop-blur-sm shadow-sm z-40">
-    <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="#" className="text-2xl font-bold text-gray-900 tracking-tighter">
-        EON
-      </a>
-      <div className="hidden md:flex space-x-6">
-        <a href="#home" className="text-gray-600 hover:text-gray-900">Home</a>
-        <a href="#shop" className="text-gray-600 hover:text-gray-900">Shop</a>
-        <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
-        <a href="#" className="text-gray-600 hover:text-gray-900">About</a>
-      </div>
-      <button onClick={onOpenCart} className="relative text-gray-600 hover:text-gray-900">
-        <CartIcon />
-        {cartCount > 0 && (
-          <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-            {cartCount}
-          </span>
-        )}
-      </button>
-    </nav>
-  </header>
-);
+// --- Header ---
+// We need to update Header to show the user's state
+const Header = ({ onOpenCart, cartCount }) => {
+  const { currentUser, logout } = useAuth(); // Get user and logout
 
+  return (
+    <header className="sticky top-0 bg-white/90 backdrop-blur-sm shadow-sm z-40">
+      <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#" className="text-2xl font-bold text-gray-900 tracking-tighter">
+          EON
+        </a>
+        <div className="hidden md:flex space-x-6">
+          <a href="#home" className="text-gray-600 hover:text-gray-900">Home</a>
+          <a href="#shop" className="text-gray-600 hover:text-gray-900">Shop</a>
+          <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
+          {currentUser && (
+            <a href="#" className="text-gray-600 hover:text-gray-900">My Account</a>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          {currentUser ? (
+            <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-900">Logout</button>
+          ) : (
+            <span className="text-sm text-gray-500">Logged Out</span>
+          )}
+          <button onClick={onOpenCart} className="relative text-gray-600 hover:text-gray-900">
+            <CartIcon />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </nav>
+    </header>
+  );
+};
+
+// --- Hero ---
 const Hero = () => (
   <section id="home" className="container mx-auto px-6 py-20 md:py-32 flex flex-col md:flex-row items-center gap-12">
     <div className="w-full md:w-1/2">
@@ -114,6 +124,8 @@ const Hero = () => (
   </section>
 );
 
+// --- ProductCard ---
+// We must update this to pass the full `product` object
 const ProductCard = ({ product, onAddToCart, onBuyNow }) => (
   <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
     <img 
@@ -130,13 +142,13 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }) => (
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
         <button 
-          onClick={() => onAddToCart(product)}
+          onClick={() => onAddToCart(product)} // Pass the product
           className="w-full bg-blue-100 text-blue-700 font-semibold py-3 px-4 rounded-lg hover:bg-blue-200 transition-all"
         >
           Add to Cart
         </button>
         <button 
-          onClick={onBuyNow}
+          onClick={() => onBuyNow(product)} // Pass the product
           className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all"
         >
           Buy Now
@@ -146,7 +158,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }) => (
   </div>
 );
 
-const Shop = ({ onAddToCart, onBuyNow }) => (
+// --- Shop ---
+const Shop = ({ products, onAddToCart, onBuyNow }) => (
   <section id="shop" className="py-24 bg-white">
     <div className="container mx-auto px-6">
       <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Our New Collection</h2>
@@ -167,6 +180,7 @@ const Shop = ({ onAddToCart, onBuyNow }) => (
   </section>
 );
 
+// --- Features ---
 const Features = () => (
   <section id="features" className="py-24 bg-gray-50">
     <div className="container mx-auto px-6">
@@ -197,6 +211,7 @@ const Features = () => (
   </section>
 );
 
+// --- Footer ---
 const Footer = () => (
   <footer className="bg-gray-900 text-gray-400 py-16">
     <div className="container mx-auto px-6">
@@ -238,6 +253,7 @@ const Footer = () => (
   </footer>
 );
 
+// --- CartSidebar ---
 const CartSidebar = ({ isOpen, onClose, cart, onRemoveFromCart, subtotal }) => (
   <>
     {/* Cart Panel */}
@@ -301,20 +317,75 @@ const CartSidebar = ({ isOpen, onClose, cart, onRemoveFromCart, subtotal }) => (
   </>
 );
 
-const BuyNowModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+// --- BuyNowModal ---
+// This is the updated component that shows the single item
+const BuyNowModal = ({ isOpen, onClose, product }) => {
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // We need to reset the success state when the modal is closed
+  // or when a new product is passed in.
+  useEffect(() => { // <-- This is the line that caused the error
+    if (isOpen) {
+      setIsSuccess(false);
+    }
+  }, [isOpen, product]);
+
+  if (!isOpen || !product) return null;
+
+  const handlePay = () => {
+    // In a real app, this would process the payment
+    console.log("Processing payment for:", product.name);
+    setIsSuccess(true);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Purchase Confirmed!</h2>
-        <p className="text-gray-600 mb-6">Thank you for your order. We're getting it ready for you now.</p>
-        <button 
-          onClick={onClose}
-          className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-all"
-        >
-          Continue Shopping
-        </button>
+      <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
+        {isSuccess ? (
+          // Success View
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Purchase Confirmed!</h2>
+            <p className="text-gray-600 mb-6">Thank you for your order of the {product.name}.</p>
+            <button 
+              onClick={onClose}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-all"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        ) : (
+          // Checkout View
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Buy Now</h2>
+            <div className="flex gap-4 items-center mb-6">
+              <img 
+                src={product.imageUrl} 
+                alt={product.name} 
+                className="w-24 h-24 rounded-lg object-cover"
+                onError={(e) => { e.target.src = 'https://placehold.co/100x100'; }}
+              />
+              <div>
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <p className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</p>
+              </div>
+            </div>
+            {/* A real payment form (e.g., Stripe) would go here */}
+            <div className="space-y-4">
+              <button 
+                onClick={handlePay}
+                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-all"
+              >
+                Pay ${product.price.toFixed(2)}
+              </button>
+              <button 
+                onClick={onClose}
+                className="w-full text-center text-gray-500 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -322,17 +393,25 @@ const BuyNowModal = ({ isOpen, onClose }) => {
 
 
 // --- Main App Component ---
-// This is the root component that ties everything together.
-
 export default function App() {
-  // --- State ---
-  // `useState` is a React Hook to hold component's state.
-  const [cart, setCart] = useState([]); // Array of { ...product, quantity: n }
-  const [isCartOpen, setIsCartOpen] = new useState(false);
-  const [isModalOpen, setIsModalOpen] = new useState(false);
+  const { currentUser } = useAuth(); // Get the user from our context
+  
+  const [products, setProducts] = useState(initialProducts);
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  
+  const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState(null);
 
-  // --- Computed State (Memoized for performance) ---
-  // `useMemo` recalculates a value only when its dependencies (the array) change.
+  // --- NEW STATE FOR OUR LOGIN FLOW ---
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  
+  // This is the magic! We store the action the user *wanted* to do.
+  const [pendingAction, setPendingAction] = useState(null); 
+  // e.g., setPendingAction(() => completeBuyNow(product))
+  
+  // --- Computed Cart State ---
   const cartCount = useMemo(() => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   }, [cart]);
@@ -341,50 +420,125 @@ export default function App() {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   }, [cart]);
 
-  // --- Event Handlers ---
-  
-  const handleAddToCart = (productToAdd) => {
+
+  // --- "COMPLETE" ACTIONS ---
+  // These are the *actual* functions that do the work
+  // *after* we know the user is logged in and has a profile.
+
+  const completeAddToCart = (product) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === productToAdd.id);
+      const existingItem = prevCart.find(item => item.id === product.id);
       
       if (existingItem) {
-        // Increment quantity if item already exists
+        // Increment quantity
         return prevCart.map(item => 
-          item.id === productToAdd.id 
+          item.id === product.id 
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         );
       } else {
-        // Add new item to cart
-        return [...prevCart, { ...productToAdd, quantity: 1 }];
+        // Add new item
+        return [...prevCart, { ...product, quantity: 1 }];
       }
     });
-    setIsCartOpen(true); // Open cart on add
+    setIsCartOpen(true);
   };
-
+  
+  const completeBuyNow = (product) => {
+    setBuyNowItem(product);
+    setIsBuyNowModalOpen(true);
+  };
+  
+  // --- "HANDLE" ACTIONS (INTERCEPTORS) ---
+  // These are the new functions your buttons will call.
+  // They check for auth before running the "complete" action.
+  
+  const handleAddToCart = (product) => {
+    // 1. Check if logged in
+    if (!currentUser) {
+      // Not logged in. Store the action, open the login modal.
+      setPendingAction(() => () => completeAddToCart(product));
+      setIsLoginModalOpen(true);
+      return; // Stop here
+    }
+    
+    // 2. Check if profile is complete
+    if (!currentUser.hasProfile) {
+      // Logged in, but no profile. Store the action, open profile modal.
+      setPendingAction(() => () => completeAddToCart(product));
+      setIsProfileModalOpen(true);
+      return; // Stop here
+    }
+    
+    // 3. User is logged in AND has a profile.
+    completeAddToCart(product);
+  };
+  
+  const handleBuyNow = (product) => {
+    // 1. Check if logged in
+    if (!currentUser) {
+      setPendingAction(() => () => completeBuyNow(product));
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
+    // 2. Check if profile is complete
+    if (!currentUser.hasProfile) {
+      setPendingAction(() => () => completeBuyNow(product));
+      setIsProfileModalOpen(true);
+      return;
+    }
+    
+    // 3. User is logged in AND has a profile.
+    completeBuyNow(product);
+  };
+  
   const handleRemoveFromCart = (productId) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
   };
+  
+  // --- This is the new "success" handler ---
+  // It's called after EITHER login or profile modal is done.
+  const onFlowSuccess = () => {
+    // First, close all modals
+    setIsLoginModalOpen(false);
+    setIsProfileModalOpen(false);
+    
+    // Now, check if the user *still* needs a profile
+    // (they might have just logged in)
+    // We must check `currentUser` *again* as it might have been updated by the AuthContext
+    if (currentUser && !currentUser.hasProfile) {
+      setIsProfileModalOpen(true); // Need to open profile modal
+      return; // Stop here
+    }
 
-  const handleBuyNow = () => {
-    setIsModalOpen(true);
+    // If we're here, the user is logged in AND has a profile.
+    // Run the action they were trying to do!
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null); // Clear the action
+    }
   };
 
-  // --- Render ---
-  // This is the JSX that defines the HTML structure of your app.
+  
   return (
     <div className="bg-gray-50 text-gray-800">
       <Header onOpenCart={() => setIsCartOpen(true)} cartCount={cartCount} />
       
       <main>
         <Hero />
-        <Shop onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
+        <Shop 
+          products={products}
+          onAddToCart={handleAddToCart} // <-- Use the new handler
+          onBuyNow={handleBuyNow}       // <-- Use the new handler
+        />
         <Features />
       </main>
       
       <Footer />
       
-      {/* Modals and Sidebars */}
+      {/* --- ALL YOUR MODALS --- */}
+      
       <CartSidebar 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -394,8 +548,29 @@ export default function App() {
       />
       
       <BuyNowModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isBuyNowModalOpen}
+        onClose={() => setIsBuyNowModalOpen(false)}
+        product={buyNowItem}
+      />
+      
+      {/* --- OUR NEW MODALS --- */}
+      
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => {
+          setIsLoginModalOpen(false);
+          setPendingAction(null); // Clear action if they cancel
+        }}
+        onLoginSuccess={onFlowSuccess}
+      />
+      
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setPendingAction(null); // Clear action if they cancel
+        }}
+        onProfileComplete={onFlowSuccess}
       />
     </div>
   );
