@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.jsx';
-import TagManager from react-gtm-module;
+import TagManager from 'react-gtm-module';
 
 const tagManagerArgs = {
-  gtmId: 'GTM-WVNDSGHG' // Replace with your actual GTM ID
+  gtmId: 'GTM-WVNDSGHG'
 };
 
 TagManager.initialize(tagManagerArgs);
